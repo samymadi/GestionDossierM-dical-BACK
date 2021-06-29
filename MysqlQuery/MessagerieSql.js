@@ -53,6 +53,22 @@ async function acceptDiscussion(id_discussion){
           return result;
 } 
 
+
+async function manageBlock(id_discussion,block){
+    let result;
+    const updateQuery = `UPDATE DISCUSSION SET block = ${block} WHERE Id_Discussion='${id_discussion}'`;
+    await new Promise((resolve,reject)=>{
+        db.query(updateQuery,(err,rslt)=>{
+            if(err) reject(err);
+                else resolve(rslt);
+        })
+    }).then(rslt=>result=rslt)
+      .catch(err=>result=500);
+    
+      return result;  
+    
+    }
+
   
 async function getDiscussions(id_User){
         let result;
@@ -68,6 +84,21 @@ async function getDiscussions(id_User){
         .catch((err)=>{result=500; console.log(err); }); 
         
         return result;
+}
+
+
+async function getDiscByUserId(Id_User,id_destinataire){
+            let result;
+            const selectQuery = `SELECT Id_Discussion FROM DISCUSSION WHERE (id_Contact1='${Id_User}' and id_Contact2='${id_destinataire}') OR (id_Contact1='${id_destinataire}' and id_Contact2='${Id_User}') `;
+            await new Promise((resolve,reject)=>{
+                db.query(selectQuery,(err,rslt)=>{
+                    if (err) reject(err);
+                        else resolve(rslt);
+                })
+            }).then(rslt=>result=rslt)   
+              .catch(err=>result=500)
+
+              return result;
 }
 
 
@@ -106,9 +137,11 @@ module.exports = {
     userExit,
     createDiscussion,
     acceptDiscussion,
-    getDiscussions  ,
+    getDiscussions,
+    getDiscByUserId,
     getMessages,
-    storeMessage
+    storeMessage,
+    manageBlock
 }
 
 

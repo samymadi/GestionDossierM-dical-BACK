@@ -10,7 +10,9 @@ const {
     createDiscussion,
     acceptDiscussion,
     getDiscussions,
-    getMessages
+    getMessages,
+    manageBlock,
+    getDiscByUserId
     } = require('../MysqlQuery/MessagerieSql')
 
 
@@ -46,7 +48,7 @@ const {
                         else {
                             const {discussion_id,datemessage} = result[0][0];
                             console.log(datemessage);
-                            const discussion = new Discussion(Id_User,discussion_id,"",null,Id_User,messageContent,datemessage);
+                            const discussion = new Discussion(Id_User,discussion_id,"",null,Id_User,messageContent,datemessage,0,0,0,Id_User);
                             const response = new HttpResponse(discussion,200);
                             console.log(response);
                             res.send(response);
@@ -64,6 +66,19 @@ const {
                     else {
                         res.sendStatus(200);
                     }
+            }
+    })
+
+
+    router.post("/manageBlock",async(req,res)=>{
+        console.log("/manageBlock");
+        const {Id_User} = req.body.cookie;
+        const {Id_discussion,block} =req.body.data;
+        if(!dataVerify(Id_User,Id_discussion)) res.sendStatus(400);
+            else{
+                const result = await manageBlock(Id_discussion,block);
+                if(result == 500) res.sendStatus(500);
+                    else res.sendStatus(200);
             }
     })
 
@@ -88,6 +103,24 @@ const {
         } 
     })
 
+
+    router.post("/getDiscByUserId",async(req,res)=>{
+        console.log("/getDiscByUserId");
+        const {Id_User} = req.body.cookie;
+        const {id_destinataire} = req.body.data;
+
+        if(!dataVerify()) res.sendStatus(400);
+            else {
+                const result = await getDiscByUserId(Id_User,id_destinataire);
+                console.log(result);
+                if(result === 500) res.sendStatus(500);
+                    else {
+                        const response = new HttpResponse(result,200);
+                        res.send(response);
+                    }
+            }
+    })
+
     router.post('/getMessages',async(req,res)=>{
         console.log("/getMessages");
         const {Id_User} = req.body.cookie;
@@ -110,5 +143,7 @@ const {
                     }
             }
     })
+
+
 
 module.exports = router;
